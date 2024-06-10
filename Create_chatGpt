@@ -1,12 +1,17 @@
+# Android Order System Sample Code
 
 ## データクラス
+
 まず、データクラス `OrderItem` を定義します。
+
 ```kotlin
 data class OrderItem(val id: String, val name: String, var quantity: Int)
 ```
 
 ## アクティビティ1: MenuChoisAct
+
 ### activity_main.xml
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -31,6 +36,7 @@ data class OrderItem(val id: String, val name: String, var quantity: Int)
 ```
 
 ### menu_chois.xml
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -90,6 +96,7 @@ data class OrderItem(val id: String, val name: String, var quantity: Int)
 ```
 
 ### MenuChoisAct.kt
+
 ```kotlin
 import android.content.Intent
 import android.os.Bundle
@@ -159,6 +166,7 @@ class MenuChoisAct : AppCompatActivity() {
 ```
 
 ### OrderAdapter.kt
+
 ```kotlin
 import android.view.LayoutInflater
 import android.view.View
@@ -193,6 +201,7 @@ class OrderAdapter(private val orderList: MutableList<OrderItem>) :
 ```
 
 ### order_item_view.xml
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -219,7 +228,9 @@ class OrderAdapter(private val orderList: MutableList<OrderItem>) :
 ```
 
 ## アクティビティ2: OrderComfirmAct
+
 ### order_comfirm.xml
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -249,6 +260,7 @@ class OrderAdapter(private val orderList: MutableList<OrderItem>) :
 ```
 
 ### OrderComfirmAct.kt
+
 ```kotlin
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -263,6 +275,124 @@ class OrderComfirmAct : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.order_comfirm)
+        setContentView(R
 
-        orderList
+.layout.order_comfirm)
+
+        orderList = intent.getParcelableArrayListExtra<OrderItem>("orderList")?.toMutableList() ?: mutableListOf()
+        adapter = ConfirmOrderAdapter(orderList, this::increaseQuantity, this::decreaseQuantity)
+
+        findViewById<Button>(R.id.BTN_TransScreen2).setOnClickListener {
+            finish()
+        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.RV_OrderItems)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+    }
+
+    private fun increaseQuantity(position: Int) {
+        orderList[position].quantity += 1
+        adapter.notifyItemChanged(position)
+    }
+
+    private fun decreaseQuantity(position: Int) {
+        val item = orderList[position]
+        if (item.quantity > 1) {
+            item.quantity -= 1
+            adapter.notifyItemChanged(position)
+        } else {
+            orderList.removeAt(position)
+            adapter.notifyItemRemoved(position)
+        }
+    }
+}
+```
+
+### ConfirmOrderAdapter.kt
+
+```kotlin
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+class ConfirmOrderAdapter(
+    private val orderList: MutableList<OrderItem>,
+    private val onAddClick: (Int) -> Unit,
+    private val onSubtractClick: (Int) -> Unit
+) : RecyclerView.Adapter<ConfirmOrderAdapter.OrderViewHolder>() {
+
+    class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nameTextView: TextView = view.findViewById(R.id.nameTextView)
+        val quantityTextView: TextView = view.findViewById(R.id.quantityTextView)
+        val addButton: Button = view.findViewById(R.id.BTN_AddMenu)
+        val subtractButton: Button = view.findViewById(R.id.BTN_SubMenu)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.order_confirm_item_view, parent, false)
+        return OrderViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
+        val item = orderList[position]
+        holder.nameTextView.text = item.name
+        holder.quantityTextView.text = item.quantity.toString()
+
+        holder.addButton.setOnClickListener {
+            onAddClick(position)
+        }
+
+        holder.subtractButton.setOnClickListener {
+            onSubtractClick(position)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return orderList.size
+    }
+}
+```
+
+### order_confirm_item_view.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Item Name"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/quantityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/BTN_AddMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+" />
+
+    <Button
+        android:id="@+id/BTN_SubMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-" />
+</LinearLayout>
+```
