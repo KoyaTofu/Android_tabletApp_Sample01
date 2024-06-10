@@ -1,0 +1,268 @@
+
+## データクラス
+まず、データクラス `OrderItem` を定義します。
+```kotlin
+data class OrderItem(val id: String, val name: String, var quantity: Int)
+```
+
+## アクティビティ1: MenuChoisAct
+### activity_main.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/TXT_Screen1Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="いらっしゃいませ"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/BTN_TransScreen2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="商品選択画面へ" />
+</LinearLayout>
+```
+
+### menu_chois.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/TXT_Screen2Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="商品選択"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/BTN_TransScreen1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="戻る" />
+
+    <Button
+        android:id="@+id/BTN_TransScreen3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注文" />
+
+    <Button
+        android:id="@+id/BTN_Menu1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="唐揚げ" />
+
+    <Button
+        android:id="@+id/BTN_Menu2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="焼き鳥" />
+
+    <Button
+        android:id="@+id/BTN_Menu3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="照り焼き風お好み焼きドリア乗せジェノベーゼパスタ" />
+
+    <Button
+        android:id="@+id/BTN_Clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="全取り消し" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RV_OrderItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+```
+
+### MenuChoisAct.kt
+```kotlin
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import android.widget.Button
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+class MenuChoisAct : AppCompatActivity() {
+
+    private lateinit var orderList: MutableList<OrderItem>
+    private lateinit var adapter: OrderAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        orderList = mutableListOf()
+        adapter = OrderAdapter(orderList)
+
+        findViewById<Button>(R.id.BTN_TransScreen2).setOnClickListener {
+            setContentView(R.layout.menu_chois)
+            setupMenuChoisScreen()
+        }
+    }
+
+    private fun setupMenuChoisScreen() {
+        findViewById<Button>(R.id.BTN_TransScreen1).setOnClickListener {
+            setContentView(R.layout.activity_main)
+        }
+
+        findViewById<Button>(R.id.BTN_TransScreen3).setOnClickListener {
+            val intent = Intent(this, OrderComfirmAct::class.java)
+            intent.putParcelableArrayListExtra("orderList", ArrayList(orderList))
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.BTN_Menu1).setOnClickListener {
+            addItemToOrder(OrderItem("0001", "唐揚げ", 1))
+        }
+
+        findViewById<Button>(R.id.BTN_Menu2).setOnClickListener {
+            addItemToOrder(OrderItem("0002", "焼き鳥", 1))
+        }
+
+        findViewById<Button>(R.id.BTN_Menu3).setOnClickListener {
+            addItemToOrder(OrderItem("0003", "照り焼き風お好み焼きドリア乗せジェノベーゼパスタ", 1))
+        }
+
+        findViewById<Button>(R.id.BTN_Clear).setOnClickListener {
+            orderList.clear()
+            adapter.notifyDataSetChanged()
+        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.RV_OrderItems)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+    }
+
+    private fun addItemToOrder(item: OrderItem) {
+        orderList.add(item)
+        adapter.notifyDataSetChanged()
+    }
+}
+```
+
+### OrderAdapter.kt
+```kotlin
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+class OrderAdapter(private val orderList: MutableList<OrderItem>) :
+    RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
+    class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nameTextView: TextView = view.findViewById(R.id.nameTextView)
+        val quantityTextView: TextView = view.findViewById(R.id.quantityTextView)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.order_item_view, parent, false)
+        return OrderViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
+        val item = orderList[position]
+        holder.nameTextView.text = item.name
+        holder.quantityTextView.text = item.quantity.toString()
+    }
+
+    override fun getItemCount(): Int {
+        return orderList.size
+    }
+}
+```
+
+### order_item_view.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Item Name"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/quantityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textSize="16sp" />
+</LinearLayout>
+```
+
+## アクティビティ2: OrderComfirmAct
+### order_comfirm.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/TXT_Screen2Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注文内容確認"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/BTN_TransScreen2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="戻る" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RV_OrderItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+```
+
+### OrderComfirmAct.kt
+```kotlin
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import android.widget.Button
+
+class OrderComfirmAct : AppCompatActivity() {
+
+    private lateinit var orderList: MutableList<OrderItem>
+    private lateinit var adapter: ConfirmOrderAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.order_comfirm)
+
+        orderList
