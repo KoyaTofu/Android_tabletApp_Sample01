@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        app:columnCount="6"
+        app:rowCount="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!--
+            android:focusableInTouchMode="false"
+            android:clickable="false"
+         -->
+
+        <!-- 注文番号 -->
+        <TextView
+            android:id="@+id/txtOrderNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="No"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.1"/>
+        <!-- 商品名 -->
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="Name"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.4"/>
+        <!-- 単価 -->
+        <TextView
+            android:id="@+id/txtPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="Price"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.2"/>
+        <!-- 数量 -->
+        <TextView
+            android:id="@+id/txtCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="true"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="Count"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.15"/>
+        <!-- 加算ボタン -->
+        <Button
+            android:id="@+id/btnInc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="false"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="＋"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.08"/>
+        <!-- 減算ボタン -->
+        <Button
+            android:id="@+id/btnDec"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusableInTouchMode="false"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="－"
+            android:textSize="24sp"
+            app:layout_columnWeight="0.08"/>
+    </androidx.gridlayout.widget.GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
